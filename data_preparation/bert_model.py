@@ -133,7 +133,6 @@ class BertModel(object):
             input_embeddings: float32 Tensor of shape [batch_size, seq_length, embed_size].
             input_masks: (optional) int32 Tensor of shape [batch_size, seq_length].
             token_type_ids: (optional) int32 Tensor of shape [batch_size, seq_length].
-                embeddings or tf.embedding_lookup() for the word embeddings.
             scope: (optional) variable scope. Defaults to "bert".
         Raises:
             ValueError: The config is invalid or one of the input tensor shapes
@@ -159,8 +158,7 @@ class BertModel(object):
             with tf.variable_scope("embeddings"):
                 self.embedding_output = input_embeddings
 
-                # Add positional embeddings and token type embeddings, then layer
-                # normalize and perform dropout.
+                # Add positional embeddings and token type embeddings, then layer normalize and perform dropout.
                 self.embedding_output = embedding_postprocessor(
                     input_tensor=self.embedding_output,
                     use_token_type=True,
@@ -235,6 +233,9 @@ class BertModel(object):
             then performing layer normalization. This is the input to the transformer.
         """
         return self.embedding_output
+
+    def get_embedding_table(self):
+        return self.embedding_table
 
 
 def gelu(x):
@@ -426,7 +427,7 @@ def embedding_postprocessor(input_tensor,
                 position_broadcast_shape.append(1)
             position_broadcast_shape.extend([seq_length, width])
             position_embeddings = tf.reshape(position_embeddings,
-                                             position_broadcast_shape)
+                                       position_broadcast_shape)
             output += position_embeddings
 
     output = layer_norm_and_dropout(output, dropout_prob)
@@ -799,7 +800,6 @@ def get_shape_list(tensor, expected_rank=None, name=None):
     """
     if name is None:
         name = tensor.name
-
     if expected_rank is not None:
         assert_rank(tensor, expected_rank, name)
 
@@ -847,13 +847,14 @@ def reshape_from_matrix(output_tensor, orig_shape_list):
 
 def assert_rank(tensor, expected_rank, name=None):
     """Raises an exception if the tensor rank is not of the expected rank.
+
     Args:
         tensor: A tf.Tensor to check the rank of.
         expected_rank: Python integer or list of integers, expected rank.
         name: Optional name of the tensor for the error message.
 
     Raises:
-        ValueError: If the expected shape doesn't match the actual shape.
+    ValueError: If the expected shape doesn't match the actual shape.
     """
     if name is None:
         name = tensor.name
@@ -868,7 +869,6 @@ def assert_rank(tensor, expected_rank, name=None):
     actual_rank = tensor.shape.ndims
     if actual_rank not in expected_rank_dict:
         scope_name = tf.get_variable_scope().name
-        raise ValueError(
-            "For the tensor `%s` in scope `%s`, the actual rank "
-            "`%d` (shape = %s) is not equal to the expected rank `%s`" %
-            (name, scope_name, actual_rank, str(tensor.shape), str(expected_rank)))
+        raise ValueError("For the tensor `%s` in scope `%s`, the actual rank "
+                         "`%d` (shape = %s) is not equal to the expected rank `%s`" %
+                         (name, scope_name, actual_rank, str(tensor.shape), str(expected_rank)))
