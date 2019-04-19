@@ -1,0 +1,3 @@
+model_checkpoint_path: "C:\\Users\\andydizhang\\PycharmProjects\\bert\\data_preparation\\checkpoint_dir\\2019-04-18 13_37_03\\BertModel-4200"
+all_model_checkpoint_paths: "C:\\Users\\andydizhang\\PycharmProjects\\bert\\data_preparation\\checkpoint_dir\\2019-04-18 13_37_03\\BertModel-3400"
+all_model_checkpoint_paths: "C:\\Users\\andydizhang\\PycharmProjects\\bert\\data_preparation\\checkpoint_dir\\2019-04-18 13_37_03\\BertModel-4200"
